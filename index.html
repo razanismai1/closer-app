@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="css/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="js/app.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
   </head>
   <body>
     <nav class="main-nav">
@@ -49,7 +52,13 @@
         
         <button id="thinking-btn" class="thinking-button">
             <span class="button-text">Thinking of You</span>
-            <span class="heart-icon">❤️</span>
+            <lottie-player 
+                src="https://assets2.lottiefiles.com/packages/lf20_ysas4vcp.json"
+                background="transparent"
+                speed="1"
+                style="width: 50px; height: 50px;"
+                hover
+            ></lottie-player>
         </button>
 
         <button id="breakupBtn" class="breakup-btn" title="Don't even think about it!">
@@ -77,5 +86,7 @@
             <span class="icon">💔</span>
         </button>
     </div>
+
+    <div id="particles-js"></div>
   </body>
 </html>
