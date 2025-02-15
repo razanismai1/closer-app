@@ -201,6 +201,7 @@ function initGame() {
         currentKeys.partner2 = randomKeys[Math.floor(Math.random() * randomKeys.length)];
     } while (currentKeys.partner1 === currentKeys.partner2);
 
+    // Update display
     partner1Key.textContent = currentKeys.partner1;
     partner2Key.textContent = currentKeys.partner2;
     partner1Key.classList.remove('pressed');
@@ -258,10 +259,11 @@ function createHeartBurst() {
     }
 }
 
-retryButton.addEventListener("click", initGame);
-
-// Initialize game when switching to stats tab
+// Initialize game when switching to game tab
 document.querySelector('[data-tab="stats"]').addEventListener('click', initGame);
+
+// Initialize game when clicking retry
+retryButton.addEventListener('click', initGame);
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -290,4 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
             activeContent.style.animation = 'fadeInScale 0.3s ease-out';
         });
     });
+
+    // Initialize game if we're on the game tab
+    if (document.querySelector('#stats').classList.contains('active')) {
+        initGame();
+    }
 }); 

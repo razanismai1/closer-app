@@ -1305,27 +1305,33 @@ particlesJS('particles-js',
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     position: relative;
     overflow: hidden;
+    min-height: 600px;
 }
 
 /* Title and Instructions */
 .game-title {
     font-size: 3rem;
-    margin-bottom: 1.5rem;
+    margin: 0 auto 1.5rem;
     background: linear-gradient(135deg, #ff6b6b 0%, #ff8585 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 800;
     letter-spacing: -1px;
+    text-align: center;
+    width: 100%;
 }
 
 .game-instructions {
     font-size: 1.2rem;
     color: #666;
-    margin-bottom: 4rem;
+    margin: 0 auto 4rem;
     max-width: 500px;
     line-height: 1.6;
+    text-align: center;
+    padding: 0 1rem;
 }
 
 /* Key Display Section */
@@ -1334,9 +1340,10 @@ particlesJS('particles-js',
     justify-content: center;
     align-items: center;
     gap: 4rem;
-    margin: 2rem auto 3rem;
+    margin: 2rem auto;
     width: 100%;
     max-width: 600px;
+    padding: 1rem;
 }
 
 .key-card {
@@ -1400,7 +1407,7 @@ particlesJS('particles-js',
 .score-display {
     font-size: 2.2rem;
     min-height: 100px;
-    margin: 2rem 0;
+    margin: 3rem auto;
     color: var(--primary-color);
     font-weight: 700;
     display: flex;
@@ -1409,11 +1416,21 @@ particlesJS('particles-js',
     justify-content: center;
     gap: 0.8rem;
     width: 100%;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Try Again Button Container */
+.button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
 }
 
 /* Try Again Button */
 .retry-button {
-    margin-top: 2rem;
+    margin: 0 auto;
     padding: 1rem 2.5rem;
     font-size: 1.2rem;
     font-weight: 600;
@@ -1423,8 +1440,9 @@ particlesJS('particles-js',
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.8rem;
     box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
 }
