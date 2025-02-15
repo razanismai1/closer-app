@@ -17,39 +17,50 @@
 <body>
     <main class="landing-container">
         <div class="auth-card">
+            <div class="logo">❤️</div>
             <h1>Thinking of You</h1>
-            <p class="subtitle">Connect with your special someone</p>
+            <p class="subtitle">Stay connected with your special someone</p>
 
             <form id="auth-form" class="auth-form">
                 <div class="form-group">
-                    <label for="username">Your Name</label>
-                    <input type="text" id="username" required 
-                           placeholder="Enter your name" class="form-input">
+                    <input type="text" id="username" class="form-input" 
+                           placeholder="Your Name" required>
                 </div>
-
-                <div class="form-group">
-                    <label for="pairCode">Have a pair code?</label>
-                    <input type="text" id="pairCode" 
-                           placeholder="Enter your pair code" class="form-input">
-                </div>
-
+                
                 <div class="button-group">
-                    <button type="button" id="generateCode" class="btn btn-primary">
-                        Generate New Pair Code
+                    <button type="button" id="generateCode" class="btn btn-primary" disabled>
+                        Generate New Code
                     </button>
-                    <button type="submit" id="connectBtn" class="btn btn-secondary">
-                        Connect
-                    </button>
+                    
+                    <div class="divider">
+                        <span>or</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <input type="text" id="pairCode" class="form-input" 
+                               placeholder="Enter 6-digit code" maxlength="6">
+                        <button type="submit" id="connectBtn" class="btn btn-secondary">
+                            Login
+                        </button>
+                    </div>
                 </div>
             </form>
 
             <div id="pairCodeDisplay" class="pair-code-display hidden">
-                <h3>Your Pair Code</h3>
-                <p class="code"></p>
+                <div class="code-container">
+                    <p class="code"></p>
+                    <button class="copy-btn">
+                        <span>Copy Code</span>
+                    </button>
+                </div>
                 <p class="instructions">Share this code with your partner to connect</p>
             </div>
         </div>
     </main>
+
+    <footer class="landing-footer">
+        <p>Made with ❤️ for couples everywhere</p>
+    </footer>
 
     <!-- Add this right before the closing </body> tag -->
     <div id="debug" style="margin-top: 20px; padding: 10px; display: none;">

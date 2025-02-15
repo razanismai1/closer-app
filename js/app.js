@@ -7,6 +7,10 @@ const heartFill = document.querySelector('.heart-fill');
 const loveLevelElement = document.querySelector('.love-level');
 const loveMessage = document.querySelector('.love-message');
 
+const usernameDisplay = document.querySelector('.username');
+const pairCodeDisplay = document.querySelector('.pair-code');
+const logoutBtn = document.getElementById('logoutBtn');
+
 let currentLoveLevel = 0;
 const messages = [
     "Your partner's heart is growing bigger for you!",
@@ -107,8 +111,82 @@ function handleClick() {
     }
 }
 
+// Initialize user data
+function initializeUserData() {
+    const userData = JSON.parse(sessionStorage.getItem('userData'));
+    if (!userData) {
+        window.location.href = 'landing.html';
+        return;
+    }
+
+    // Update header
+    usernameDisplay.textContent = userData.username;
+    pairCodeDisplay.textContent = userData.userCode;
+}
+
+// Handle logout
+logoutBtn.addEventListener('click', () => {
+    sessionStorage.removeItem('userData');
+    window.location.href = 'landing.html';
+});
+
+// Easter Egg Handler
+const breakupBtn = document.getElementById('breakupBtn');
+let clickCount = 0;
+const breakupMessages = [
+    {
+        title: "Nice try! 😏",
+        message: "Love doesn't have an undo button."
+    },
+    {
+        title: "Still trying? 😅",
+        message: "Oops! You can't escape that easily."
+    },
+    {
+        title: "Really? 🤨",
+        message: "The only way out is through more love!"
+    }
+];
+
+function createPopup(title, message) {
+    const popup = document.createElement('div');
+    popup.className = 'popup';
+    popup.innerHTML = `
+        <div class="popup-content">
+            <h3 class="popup-title">${title}</h3>
+            <p class="popup-message">${message}</p>
+        </div>
+        <button class="popup-btn">Fine, I'll stay! 🥰</button>
+    `;
+    
+    document.body.appendChild(popup);
+    
+    // Show popup with delay for animation
+    setTimeout(() => popup.classList.add('show'), 10);
+    
+    // Handle close button
+    const closeBtn = popup.querySelector('.popup-btn');
+    closeBtn.addEventListener('click', () => {
+        popup.classList.remove('show');
+        setTimeout(() => popup.remove(), 300);
+    });
+}
+
+breakupBtn.addEventListener('click', () => {
+    const messageIndex = clickCount % breakupMessages.length;
+    createPopup(breakupMessages[messageIndex].title, breakupMessages[messageIndex].message);
+    clickCount++;
+    
+    // Add some fun animations to the page
+    document.querySelectorAll('.heart-container').forEach(heart => {
+        heart.style.animation = 'heartBeat 0.5s ease-in-out';
+        setTimeout(() => heart.style.animation = '', 500);
+    });
+});
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    initializeUserData();
     if (thinkingBtn) {
         thinkingBtn.addEventListener('click', handleClick);
     }

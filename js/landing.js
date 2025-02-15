@@ -1,25 +1,15 @@
-import { 
-    ref, 
-    set, 
-    get,
-    update,
-    onValue 
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { database } from './firebase.js';
-
 // DOM Elements
 const authForm = document.getElementById('auth-form');
 const generateCodeBtn = document.getElementById('generateCode');
 const pairCodeDisplay = document.getElementById('pairCodeDisplay');
 const usernameInput = document.getElementById('username');
 const pairCodeInput = document.getElementById('pairCode');
+const loginBtn = document.getElementById('connectBtn');
+
+// Store users locally
+const users = {};
 
 class PairingService {
-    constructor() {
-        this.database = database;
-    }
-
-    // Generate a unique code
     generateUniqueCode() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         const codeLength = 6;
@@ -29,112 +19,24 @@ class PairingService {
         ).join('');
     }
 
-    // Create a new user with a unique code
-    async createUser(username) {
-        try {
-            let userCode;
-            let codeExists = true;
-            let attempts = 0;
-            const maxAttempts = 10;
-
-            // Keep generating until we get a unique code
-            while (codeExists && attempts < maxAttempts) {
-                userCode = this.generateUniqueCode();
-                const snapshot = await get(ref(this.database, `users/${userCode}`));
-                codeExists = snapshot.exists();
-                attempts++;
-            }
-
-            if (attempts >= maxAttempts) {
-                throw new Error('Failed to generate unique code after multiple attempts');
-            }
-
-            const userData = {
-                username,
-                userCode,
-                createdAt: new Date().toISOString(),
-                pairedWith: null,
-                status: 'active'
-            };
-
-            // Save to Firebase
-            await set(ref(this.database, `users/${userCode}`), userData);
-            
-            console.log('User created successfully:', userData); // Debug log
-            return { success: true, userCode, userData };
-        } catch (error) {
-            console.error('Error creating user:', error);
-            return { success: false, error: error.message };
-        }
+    createUser(username) {
+        const userCode = this.generateUniqueCode();
+        const userData = {
+            username,
+            userCode,
+            createdAt: new Date().toISOString()
+        };
+        
+        // Store in local users object
+        users[userCode] = userData;
+        return { success: true, userCode };
     }
 
-    // Check if a user code exists
-    async checkUserCode(code) {
-        try {
-            const snapshot = await get(ref(this.database, `users/${code}`));
-            return snapshot.exists() && !snapshot.val().pairedWith;
-        } catch (error) {
-            console.error('Error checking user code:', error);
-            return false;
-        }
-    }
-
-    // Create a pair between two users
-    async createPair(userCode1, userCode2) {
-        try {
-            const pairId = `${userCode1}_${userCode2}`;
-            const updates = {};
-
-            // Update both users
-            updates[`users/${userCode1}/pairedWith`] = userCode2;
-            updates[`users/${userCode2}/pairedWith`] = userCode1;
-
-            // Create pair entry
-            updates[`pairs/${pairId}`] = {
-                users: {
-                    [userCode1]: true,
-                    [userCode2]: true
-                },
-                createdAt: new Date().toISOString(),
-                status: 'active',
-                thoughts: {
-                    [userCode1]: 0,
-                    [userCode2]: 0
-                }
-            };
-
-            // Perform atomic update
-            await update(ref(this.database), updates);
-            return { success: true, pairId };
-        } catch (error) {
-            console.error('Error creating pair:', error);
-            return { success: false, error: error.message };
-        }
-    }
-
-    // Get user data
-    async getUserData(userCode) {
-        try {
-            const snapshot = await get(ref(this.database, `users/${userCode}`));
-            return snapshot.exists() ? snapshot.val() : null;
-        } catch (error) {
-            console.error('Error getting user data:', error);
-            return null;
-        }
-    }
-
-    // Listen for pair status changes
-    onPairStatusChange(userCode, callback) {
-        const userRef = ref(this.database, `users/${userCode}`);
-        return onValue(userRef, (snapshot) => {
-            if (snapshot.exists()) {
-                callback(snapshot.val());
-            }
-        });
+    getUserData(userCode) {
+        return users[userCode] || null;
     }
 }
 
-// Initialize the pairing service
 const pairingService = new PairingService();
 
 // Show code with animation
@@ -147,7 +49,6 @@ function displayCode(code) {
     for (let i = 0; i < code.length; i++) {
         setTimeout(() => {
             codeElement.textContent += code[i];
-            // Add sparkle effect on each character
             createSparkle(codeElement);
         }, i * 150);
     }
@@ -173,108 +74,84 @@ generateCodeBtn.addEventListener('click', () => {
         return;
     }
 
-    // Disable button during animation
     generateCodeBtn.disabled = true;
     generateCodeBtn.textContent = 'Generating...';
 
     try {
-        // Generate code
-        const code = pairingService.generateUniqueCode();
+        const result = pairingService.createUser(username);
         
         // Store user data
-        sessionStorage.setItem('userData', JSON.stringify({
+        const userData = {
             username,
-            userCode: code
-        }));
+            userCode: result.userCode
+        };
+        sessionStorage.setItem('userData', JSON.stringify(userData));
 
         // Display code with animation
-        displayCode(code);
-
-        // Add copy functionality
-        const codeElement = pairCodeDisplay.querySelector('.code');
-        codeElement.addEventListener('click', () => {
-            navigator.clipboard.writeText(code)
-                .then(() => {
-                    codeElement.setAttribute('data-tooltip', 'Copied!');
-                    // Add success animation
-                    codeElement.classList.add('copied');
-                    setTimeout(() => {
-                        codeElement.removeAttribute('data-tooltip');
-                        codeElement.classList.remove('copied');
-                    }, 2000);
-                });
-        });
-
-        // Disable pair code input
-        pairCodeInput.value = '';
-        pairCodeInput.disabled = true;
-
+        displayCode(result.userCode);
+        
         // Update button state
         generateCodeBtn.textContent = 'Code Generated!';
-        generateCodeBtn.disabled = true;
-
+        
+        // Redirect after showing code
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
     } catch (error) {
-        console.error('Error generating code:', error);
         alert('Failed to generate code. Please try again.');
-        generateCodeBtn.textContent = 'Generate New Pair Code';
+        generateCodeBtn.textContent = 'Generate New Code';
         generateCodeBtn.disabled = false;
     }
 });
 
-// Handle input changes
-usernameInput.addEventListener('input', () => {
-    const hasUsername = usernameInput.value.trim().length > 0;
-    generateCodeBtn.disabled = !hasUsername;
-    if (hasUsername) {
-        generateCodeBtn.textContent = 'Generate New Pair Code';
+// Handle form submission for login
+authForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const username = usernameInput.value.trim();
+    const userCode = pairCodeInput.value.trim().toUpperCase();
+
+    if (!username || !userCode) {
+        alert('Please fill in all fields');
+        return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Logging in...';
+
+    try {
+        const userData = pairingService.getUserData(userCode);
+        if (!userData) {
+            throw new Error('Invalid code. Please check and try again.');
+        }
+
+        // Store user data in session
+        sessionStorage.setItem('userData', JSON.stringify({
+            username,
+            userCode
+        }));
+        
+        // Redirect to main app
+        window.location.href = 'index.html';
+        
+    } catch (error) {
+        alert(error.message || 'Failed to log in. Please try again.');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
     }
 });
 
-// Format pair code input
+// Enable/disable buttons based on input
+usernameInput.addEventListener('input', () => {
+    const hasUsername = usernameInput.value.trim().length > 0;
+    generateCodeBtn.disabled = !hasUsername;
+    loginBtn.disabled = !hasUsername || pairCodeInput.value.length !== 6;
+});
+
 pairCodeInput.addEventListener('input', (e) => {
     e.target.value = e.target.value.toUpperCase();
     if (e.target.value.length > 6) {
         e.target.value = e.target.value.slice(0, 6);
     }
-});
-
-authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const username = usernameInput.value.trim();
-    const partnerCode = pairCodeInput.value.trim().toUpperCase();
-
-    if (!username || !partnerCode) {
-        alert('Please fill in all fields');
-        return;
-    }
-
-    // First check if partner code exists
-    const partnerExists = await pairingService.checkUserCode(partnerCode);
-    if (!partnerExists) {
-        alert('Invalid partner code. Please check and try again.');
-        return;
-    }
-
-    // Create user and pair them
-    const userResult = await pairingService.createUser(username);
-    if (userResult.success) {
-        const pairResult = await pairingService.createPair(userResult.userCode, partnerCode);
-        
-        if (pairResult.success) {
-            // Store connection data
-            sessionStorage.setItem('userData', JSON.stringify({
-                username,
-                userCode: userResult.userCode,
-                pairedWith: partnerCode
-            }));
-            
-            // Redirect to main app
-            window.location.href = `index.html?code=${userResult.userCode}&paired=${partnerCode}&user=${encodeURIComponent(username)}`;
-        } else {
-            alert('Failed to connect with partner. Please try again.');
-        }
-    } else {
-        alert('Failed to create user. Please try again.');
-    }
+    loginBtn.disabled = e.target.value.length !== 6 || !usernameInput.value.trim();
 }); 

@@ -9,9 +9,29 @@
     <script type="module" src="js/app.js" defer></script>
   </head>
   <body>
-    <nav class="tab-nav">
-      <button class="tab-btn active" data-tab="thinking">Thinking of You</button>
-      <button class="tab-btn" data-tab="stats">Stats</button>
+    <nav class="main-nav">
+        <div class="nav-content">
+            <div class="profile-info">
+                <span class="username"></span>
+                <span class="pair-code"></span>
+            </div>
+            
+            <div class="nav-tabs">
+                <button class="tab-btn active" data-tab="thinking">
+                    <span class="icon">❤️</span>
+                    Thinking of You
+                </button>
+                <button class="tab-btn" data-tab="stats">
+                    <span class="icon">📊</span>
+                    Stats
+                </button>
+            </div>
+
+            <button id="logoutBtn" class="btn btn-outline">
+                <span class="icon">👋</span>
+                Logout
+            </button>
+        </div>
     </nav>
 
     <main>
@@ -28,7 +48,12 @@
         </div>
         
         <button id="thinking-btn" class="thinking-button">
-            Thinking of You ❤️
+            <span class="button-text">Thinking of You</span>
+            <span class="heart-icon">❤️</span>
+        </button>
+
+        <button id="breakupBtn" class="breakup-btn" title="Don't even think about it!">
+            <span class="icon">💔</span>
         </button>
       </section>
 
@@ -46,5 +71,11 @@
         </div>
       </section>
     </main>
+
+    <div class="easter-egg">
+        <button id="breakupBtn" class="breakup-btn" title="Don't even think about it!">
+            <span class="icon">💔</span>
+        </button>
+    </div>
   </body>
 </html>
