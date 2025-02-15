@@ -184,6 +184,85 @@ breakupBtn.addEventListener('click', () => {
     });
 });
 
+// Game Logic
+const partner1Key = document.querySelector("#partner1Key");
+const partner2Key = document.querySelector("#partner2Key");
+const scoreDisplay = document.querySelector("#score");
+const retryButton = document.querySelector("#retry");
+
+const randomKeys = ["A", "S", "D", "F", "J", "K", "L", "P"];
+let pressTimes = { partner1: null, partner2: null };
+let currentKeys = { partner1: null, partner2: null };
+
+function initGame() {
+    // Generate different random keys for each partner
+    do {
+        currentKeys.partner1 = randomKeys[Math.floor(Math.random() * randomKeys.length)];
+        currentKeys.partner2 = randomKeys[Math.floor(Math.random() * randomKeys.length)];
+    } while (currentKeys.partner1 === currentKeys.partner2);
+
+    partner1Key.textContent = currentKeys.partner1;
+    partner2Key.textContent = currentKeys.partner2;
+    partner1Key.classList.remove('pressed');
+    partner2Key.classList.remove('pressed');
+    scoreDisplay.textContent = '';
+    pressTimes = { partner1: null, partner2: null };
+}
+
+document.addEventListener("keydown", (event) => {
+    const key = event.key.toUpperCase();
+    
+    if (key === currentKeys.partner1 && !pressTimes.partner1) {
+        pressTimes.partner1 = new Date().getTime();
+        partner1Key.classList.add('pressed');
+    }
+    if (key === currentKeys.partner2 && !pressTimes.partner2) {
+        pressTimes.partner2 = new Date().getTime();
+        partner2Key.classList.add('pressed');
+    }
+
+    if (pressTimes.partner1 && pressTimes.partner2) {
+        const timeDifference = Math.abs(pressTimes.partner1 - pressTimes.partner2);
+        const compatibility = Math.max(0, 100 - timeDifference / 5);
+        
+        let message = '';
+        if (compatibility > 90) {
+            message = " - Perfect Match! 💖";
+            scoreDisplay.classList.add('perfect-match');
+            createHeartBurst();
+        } else if (compatibility > 70) {
+            message = " - Almost There! 💕";
+        } else {
+            message = " - Keep Practicing! 💝";
+        }
+
+        scoreDisplay.innerHTML = `Compatibility: ${compatibility.toFixed(1)}%<br>${message}`;
+        
+        setTimeout(() => {
+            scoreDisplay.classList.remove('perfect-match');
+        }, 1000);
+    }
+});
+
+function createHeartBurst() {
+    const container = document.querySelector('.game-container');
+    for (let i = 0; i < 15; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'floating-heart';
+        heart.innerHTML = '❤️';
+        heart.style.left = `${Math.random() * 100}%`;
+        heart.style.animationDelay = `${Math.random() * 0.5}s`;
+        container.appendChild(heart);
+        
+        setTimeout(() => heart.remove(), 3000);
+    }
+}
+
+retryButton.addEventListener("click", initGame);
+
+// Initialize game when switching to stats tab
+document.querySelector('[data-tab="stats"]').addEventListener('click', initGame);
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     initializeUserData();
