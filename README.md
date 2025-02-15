@@ -1,3 +1,18 @@
+# Thinking of You Web App
+
+A simple web application that allows paired users to express and track how often they think about each other.
+
+## Setup
+
+1. Clone this repository
+2. Configure Firebase:
+   - Create a new Firebase project
+   - Copy your Firebase config to `js/firebase.js`
+   - Enable Authentication and Realtime Database
+3. Open `index.html` in your browser or set up a local server
+
+## Project Structure
+
 # Thinking of You - Web App
 
 A simple and fun web app that lets users in a pair track how often they think about each other. Each time a user clicks the "Thinking of You" button, the counter for their partner increases. The app provides a dashboard to display the stats in a meaningful way.

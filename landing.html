@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thinking of You - Get Started</title>
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Firebase SDK -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+    
+    <!-- Your JavaScript -->
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/landing.js" defer></script>
+</head>
+<body>
+    <main class="landing-container">
+        <div class="auth-card">
+            <h1>Thinking of You</h1>
+            <p class="subtitle">Connect with your special someone</p>
+
+            <form id="auth-form" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Your Name</label>
+                    <input type="text" id="username" required 
+                           placeholder="Enter your name" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="pairCode">Have a pair code?</label>
+                    <input type="text" id="pairCode" 
+                           placeholder="Enter your pair code" class="form-input">
+                </div>
+
+                <div class="button-group">
+                    <button type="button" id="generateCode" class="btn btn-primary">
+                        Generate New Pair Code
+                    </button>
+                    <button type="submit" id="connectBtn" class="btn btn-secondary">
+                        Connect
+                    </button>
+                </div>
+            </form>
+
+            <div id="pairCodeDisplay" class="pair-code-display hidden">
+                <h3>Your Pair Code</h3>
+                <p class="code"></p>
+                <p class="instructions">Share this code with your partner to connect</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html> 

@@ -3,9 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Closer</title>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="scripts.js" defer></script>
+    <title>Thinking of You</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="js/app.js" defer></script>
   </head>
-  <body></body>
+  <body>
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="thinking">Thinking of You</button>
+      <button class="tab-btn" data-tab="stats">Stats</button>
+    </nav>
+
+    <main>
+      <section id="thinking" class="tab-content active">
+        <button id="thinking-btn" class="thinking-button">
+          Thinking of You ❤️
+        </button>
+      </section>
+
+      <section id="stats" class="tab-content">
+        <div class="stats-container">
+          <div class="counters">
+            <h2>Your Stats</h2>
+            <div class="counter-grid">
+              <!-- Counters will be populated by JavaScript -->
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="trendsChart"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
 </html>
