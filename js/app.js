@@ -1,173 +1,136 @@
-import { 
-    getDatabase, 
-    ref, 
-    get,
-    update,
-    onValue 
-} from 'firebase/database';
-import { database } from './firebase.js';
+// Remove Firebase-related imports for now since we're focusing on UI
+// import { database } from './firebase.js';
 
 // DOM Elements
 const thinkingBtn = document.getElementById('thinking-btn');
-const statsContainer = document.querySelector('.stats-container');
-const counterGrid = document.querySelector('.counter-grid');
-let userData = null;
-let chart = null;
+const heartFill = document.querySelector('.heart-fill');
+const loveLevelElement = document.querySelector('.love-level');
+const loveMessage = document.querySelector('.love-message');
 
-// Initialize the dashboard
-async function initializeDashboard(userCode) {
-    userData = JSON.parse(sessionStorage.getItem('userData'));
-    if (!userData) return false;
+let currentLoveLevel = 0;
+const messages = [
+    "Your partner's heart is growing bigger for you!",
+    "Keep the love flowing!",
+    "Almost at soulmate level, keep going!",
+    "Your love is reaching new heights!",
+    "You're making their heart flutter!",
+    "Love is in the air!",
+    "Your partner's heart is overflowing!",
+    "Soulmate status achieved! 💕",
+];
 
-    // Listen for thoughts in real-time
-    const thoughtsRef = ref(database, `pairs/${userCode}_${userData.pairedWith}/thoughts`);
-    onValue(thoughtsRef, (snapshot) => {
-        if (snapshot.exists()) {
-            updateStats(snapshot.val());
-        }
-    });
-
-    // Listen for partner's name changes
-    const partnerRef = ref(database, `users/${userData.pairedWith}`);
-    onValue(partnerRef, (snapshot) => {
-        if (snapshot.exists()) {
-            const partnerData = snapshot.val();
-            document.querySelector('.partner-name').textContent = partnerData.username;
-        }
-    });
-
-    return true;
-}
-
-// Update stats display
-function updateStats(thoughtsData) {
-    const myThoughts = thoughtsData[userData.userCode] || 0;
-    const theirThoughts = thoughtsData[userData.pairedWith] || 0;
-
-    // Update counters
-    counterGrid.innerHTML = `
-        <div class="counter">
-            <h3>Thoughts Sent</h3>
-            <p>${myThoughts}</p>
-        </div>
-        <div class="counter">
-            <h3>Thoughts Received</h3>
-            <p>${theirThoughts}</p>
-        </div>
-    `;
-
-    // Update chart
-    if (chart) {
-        chart.data.datasets[0].data = [theirThoughts];
-        chart.update();
+// Add these functions for new animations
+function createFloatingHearts() {
+    const container = document.querySelector('.heart-container');
+    for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.innerHTML = '❤️';
+            heart.style.left = `${Math.random() * 100}%`;
+            heart.style.bottom = '0';
+            container.appendChild(heart);
+            
+            // Remove after animation
+            heart.addEventListener('animationend', () => heart.remove());
+        }, i * 200);
     }
 }
 
-// Send a thought
-async function sendThought() {
-    try {
-        const pairId = `${userData.userCode}_${userData.pairedWith}`;
-        const thoughtsRef = ref(database, `pairs/${pairId}/thoughts/${userData.userCode}`);
+function createLoveParticles() {
+    const container = document.querySelector('.heart-container');
+    for (let i = 0; i < 12; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'love-particle';
         
-        // Get current count
-        const snapshot = await get(thoughtsRef);
-        const currentCount = snapshot.exists() ? snapshot.val() : 0;
+        // Random position and movement
+        const angle = (i / 12) * Math.PI * 2;
+        const distance = 50 + Math.random() * 50;
+        particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+        particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
         
-        // Update thought count
-        await update(ref(database, `pairs/${pairId}/thoughts`), {
-            [userData.userCode]: currentCount + 1
-        });
+        particle.style.animation = `particle 1s ease-out forwards`;
+        container.appendChild(particle);
+        
+        // Remove after animation
+        particle.addEventListener('animationend', () => particle.remove());
+    }
+}
 
-        // Add animation to button
+// Update the love meter function
+function updateLoveMeter() {
+    // Increment the level
+    currentLoveLevel = Math.min(currentLoveLevel + 10, 100);
+    
+    // Update fill height
+    heartFill.style.transform = `scaleY(${currentLoveLevel / 100})`;
+    
+    // Update percentage
+    loveLevelElement.textContent = `${currentLoveLevel}%`;
+    
+    // Update message
+    const messageIndex = Math.floor((currentLoveLevel / 100) * (messages.length - 1));
+    loveMessage.textContent = messages[messageIndex];
+    
+    // Add effects based on level
+    if (currentLoveLevel >= 50) {
+        heartFill.classList.add('active');
+        createFloatingHearts();
+    }
+    
+    // Create particles on every update
+    createLoveParticles();
+}
+
+// Handle button click
+function handleClick() {
+    if (!thinkingBtn.disabled) {
+        thinkingBtn.disabled = true;
+        
+        // Add button animation
         thinkingBtn.classList.add('clicked');
+        
+        // Create initial burst of particles
+        createLoveParticles();
+        
+        // Update the heart meter
+        updateLoveMeter();
+        
+        // Create floating hearts
+        createFloatingHearts();
+        
+        // Re-enable button after animation
         setTimeout(() => {
             thinkingBtn.classList.remove('clicked');
-        }, 300);
-
-    } catch (error) {
-        console.error('Error sending thought:', error);
-        alert('Failed to send thought. Please try again.');
+            thinkingBtn.disabled = false;
+        }, 1000);
     }
 }
 
-// Initialize charts
-function initializeCharts() {
-    const ctx = document.getElementById('trendsChart').getContext('2d');
-    chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Thoughts Received'],
-            datasets: [{
-                label: 'Thoughts from Partner',
-                data: [0],
-                backgroundColor: 'rgba(255, 107, 107, 0.5)',
-                borderColor: 'rgba(255, 107, 107, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
-// Event Listeners
-thinkingBtn.addEventListener('click', sendThought);
-
-// Tab switching
-const tabBtns = document.querySelectorAll('.tab-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-
-tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const tabId = btn.dataset.tab;
-        
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-        
-        btn.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-    });
-});
-
-// Add this at the beginning of app.js
-function checkAuth() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const pairCode = urlParams.get('code');
-    const username = urlParams.get('user');
-
-    if (!pairCode || !username) {
-        window.location.href = 'landing.html';
-        return false;
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    if (thinkingBtn) {
+        thinkingBtn.addEventListener('click', handleClick);
     }
-    return { pairCode, username };
-}
 
-// In your app.js, add this after checkAuth()
-function initializePairListener(userCode) {
-    pairingService.onPairStatusChange(userCode, (userData) => {
-        if (userData.pairedWith) {
-            // Update UI to show connected status
-            document.querySelector('.connection-status').textContent = 
-                `Connected with ${userData.pairedWith}`;
-        }
+    // Initialize tab switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+            
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                content.style.animation = '';
+            });
+            
+            btn.classList.add('active');
+            const activeContent = document.getElementById(tabId);
+            activeContent.classList.add('active');
+            activeContent.style.animation = 'fadeInScale 0.3s ease-out';
+        });
     });
-}
-
-// Initialize the app
-document.addEventListener('DOMContentLoaded', async () => {
-    const auth = checkAuth();
-    if (!auth) return;
-    
-    const initialized = await initializeDashboard(auth.pairCode);
-    if (initialized) {
-        initializeCharts();
-    } else {
-        window.location.href = 'landing.html';
-    }
 }); 

@@ -59,16 +59,24 @@ body {
     background-color: var(--primary-color);
     color: white;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
 }
 
 .thinking-button:hover {
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.thinking-button.clicked {
+    animation: heartBeat 1s ease-in-out;
 }
 
 .stats-container {
     max-width: 800px;
     margin: 0 auto;
+    animation: fadeInScale 0.3s ease-out;
 }
 
 .counter-grid {
@@ -186,6 +194,7 @@ body {
     padding: 1rem;
     background-color: var(--background-color);
     border-radius: 6px;
+    animation: fadeInScale 0.3s ease-out;
 }
 
 .pair-code-display .code {
@@ -242,4 +251,455 @@ body {
 
 .pair-code-display .code {
     user-select: all;
+}
+
+/* Add these animation styles */
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.15); }
+    60% { transform: scale(1); }
+}
+
+@keyframes floatingHearts {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) scale(0.5);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeInScale {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Floating heart styles */
+.floating-heart {
+    position: absolute;
+    pointer-events: none;
+    animation: floatingHearts 1s ease-out forwards;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+/* Add animation to counters */
+.counter {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.counter:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.counter p {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin: 0.5rem 0;
+    font-weight: bold;
+}
+
+/* Love Meter Styles */
+.love-meter-container {
+    text-align: center;
+    margin: 2rem auto;
+    max-width: 300px;
+}
+
+.heart-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 2rem auto;
+}
+
+.heart-background, .heart-fill {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: currentColor;
+    clip-path: path('M100,30 C60,7 0,7 0,76 C0,131 100,190 100,190 C100,190 200,131 200,76 C200,7 140,7 100,30');
+}
+
+.heart-background {
+    color: rgba(255, 107, 107, 0.1);
+}
+
+.heart-fill {
+    color: var(--primary-color);
+    transform-origin: bottom;
+    transform: scaleY(0);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(
+        45deg,
+        var(--primary-color) 0%,
+        #ff8989 50%,
+        var(--primary-color) 100%
+    );
+    animation: shine 2s linear infinite;
+}
+
+.love-level {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 
+        -1px -1px 0 #ff6b6b,
+        1px -1px 0 #ff6b6b,
+        -1px 1px 0 #ff6b6b,
+        1px 1px 0 #ff6b6b,
+        0 0 8px rgba(0,0,0,0.3);
+    z-index: 2;
+}
+
+.love-message {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin-top: 1rem;
+    min-height: 3rem;
+}
+
+/* Button Styles */
+.thinking-button {
+    font-size: 1.8rem;
+    padding: 1.5rem 3rem;
+    margin-top: 2rem;
+    background: linear-gradient(45deg, var(--primary-color), #ff8989);
+    border: none;
+    border-radius: 50px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    transition: all 0.3s ease;
+}
+
+.thinking-button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.thinking-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.1); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+    60% { transform: scale(1); }
+}
+
+.thinking-button.clicked {
+    animation: heartBeat 1s ease-in-out;
+}
+
+/* Add wave effect at the top of fill */
+@keyframes wave {
+    0% { transform: translateX(-50%) rotate(0deg); }
+    100% { transform: translateX(-50%) rotate(360deg); }
+}
+
+.wave {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 200%;
+    height: 20px;
+    background: radial-gradient(circle at center, 
+        rgba(255, 255, 255, 0.8) 0%,
+        transparent 80%);
+    transform-origin: center;
+    animation: wave 2s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.heart-fill.filling .wave {
+    opacity: 1;
+}
+
+/* Ripple effect for the fill */
+@keyframes ripple {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+.ripple {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.4);
+    animation: ripple 1s ease-out infinite;
+}
+
+/* Heart Animations */
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.15); }
+    60% { transform: scale(1); }
+}
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes glow {
+    0% { filter: drop-shadow(0 0 2px var(--primary-color)); }
+    50% { filter: drop-shadow(0 0 8px var(--primary-color)); }
+    100% { filter: drop-shadow(0 0 2px var(--primary-color)); }
+}
+
+.heart-container.pulse {
+    animation: heartbeat 1s ease-in-out;
+}
+
+.heart-container.glow {
+    animation: glow 2s ease-in-out infinite;
+}
+
+/* Sparkles */
+.sparkle {
+    position: absolute;
+    pointer-events: none;
+    background: var(--primary-color);
+    border-radius: 50%;
+    mix-blend-mode: screen;
+}
+
+@keyframes sparkle {
+    0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1) rotate(180deg); opacity: 1; }
+}
+
+.sparkle {
+    width: 8px;
+    height: 8px;
+    animation: sparkle 1s ease-in-out forwards;
+}
+
+/* Love Meter Animations */
+@keyframes heartbeat {
+    0% { transform: scale(1) rotate(45deg); }
+    15% { transform: scale(1.25) rotate(45deg); }
+    30% { transform: scale(1) rotate(45deg); }
+    45% { transform: scale(1.25) rotate(45deg); }
+    60% { transform: scale(1) rotate(45deg); }
+}
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+
+.heart-container.pulse .heart,
+.heart-container.pulse .heart-fill {
+    animation: heartbeat 1s ease-in-out;
+}
+
+.love-meter-container.floating {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Add sparkle animation */
+@keyframes sparkle {
+    0% { transform: scale(0) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1) rotate(180deg); opacity: 1; }
+    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+.sparkle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparkle 1s ease-in-out forwards;
+}
+
+/* Enhance heart fill transition */
+.heart-fill {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Add hover effect to the love meter */
+.love-meter:hover .heart {
+    filter: brightness(1.1);
+}
+
+/* Make the button more prominent */
+.thinking-button {
+    font-size: 1.8rem;
+    padding: 1.5rem 3rem;
+    margin-top: 2rem;
+    background: linear-gradient(45deg, var(--primary-color), #ff8989);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    transition: all 0.3s ease;
+}
+
+.thinking-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.thinking-button:active {
+    transform: translateY(-1px);
+}
+
+/* Add these new animations */
+@keyframes shine {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes sparkleRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Add sparkles container */
+.sparkles-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    animation: sparkleRotate 3s linear infinite;
+    pointer-events: none;
+}
+
+/* Add floating hearts */
+@keyframes floatUpAndFade {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) scale(0.5) rotate(45deg);
+        opacity: 0;
+    }
+}
+
+.floating-heart {
+    position: absolute;
+    font-size: 20px;
+    color: var(--primary-color);
+    animation: floatUpAndFade 1.5s ease-out forwards;
+    z-index: 1;
+}
+
+/* Add glowing effect */
+@keyframes glow {
+    0% { filter: drop-shadow(0 0 2px var(--primary-color)); }
+    50% { filter: drop-shadow(0 0 8px var(--primary-color)); }
+    100% { filter: drop-shadow(0 0 2px var(--primary-color)); }
+}
+
+.heart-container {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.heart-fill.active {
+    animation: glow 2s ease-in-out infinite;
+}
+
+/* Add love particles */
+@keyframes particle {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.love-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Add these styles for the code generation animations */
+.code {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.code.copied {
+    transform: scale(1.1);
+    color: #4CAF50;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink {
+    50% { border-color: transparent; }
+}
+
+.code {
+    display: inline-block;
+    overflow: hidden;
+    border-right: 3px solid var(--primary-color);
+    white-space: nowrap;
+    animation: 
+        typing 1s steps(6, end),
+        blink 0.75s step-end infinite;
+}
+
+@keyframes sparkleCode {
+    0% { transform: scale(0) rotate(0deg); opacity: 1; }
+    100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
+}
+
+.sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparkleCode 1s ease-out forwards;
 } 

@@ -1,18 +1,11 @@
-import { initializeApp } from 'firebase/app';
 import { 
-    getDatabase, 
     ref, 
     set, 
     get,
     update,
     onValue 
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { firebaseConfig } from './firebase.js';
 import { database } from './firebase.js';
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
 
 // DOM Elements
 const authForm = document.getElementById('auth-form');
@@ -144,56 +137,104 @@ class PairingService {
 // Initialize the pairing service
 const pairingService = new PairingService();
 
-// Event Listeners
-generateCodeBtn.addEventListener('click', async () => {
+// Show code with animation
+function displayCode(code) {
+    const codeElement = pairCodeDisplay.querySelector('.code');
+    codeElement.textContent = '';
+    pairCodeDisplay.classList.remove('hidden');
+    
+    // Add typing effect
+    for (let i = 0; i < code.length; i++) {
+        setTimeout(() => {
+            codeElement.textContent += code[i];
+            // Add sparkle effect on each character
+            createSparkle(codeElement);
+        }, i * 150);
+    }
+}
+
+// Create sparkle effect
+function createSparkle(element) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    sparkle.style.left = `${Math.random() * 100}%`;
+    sparkle.style.top = `${Math.random() * 100}%`;
+    element.appendChild(sparkle);
+    
+    setTimeout(() => sparkle.remove(), 1000);
+}
+
+// Handle generate code button click
+generateCodeBtn.addEventListener('click', () => {
     const username = usernameInput.value.trim();
+    
     if (!username) {
         alert('Please enter your name first');
         return;
     }
 
-    try {
-        // Create new user with unique code
-        const result = await pairingService.createUser(username);
-        
-        if (result.success) {
-            // Show the generated code
-            const codeElement = pairCodeDisplay.querySelector('.code');
-            codeElement.textContent = result.userCode;
-            pairCodeDisplay.classList.remove('hidden');
-            
-            // Store user data in sessionStorage
-            sessionStorage.setItem('userData', JSON.stringify({
-                username,
-                userCode: result.userCode
-            }));
-            
-            // Add copy button functionality
-            codeElement.addEventListener('click', () => {
-                navigator.clipboard.writeText(result.userCode)
-                    .then(() => {
-                        codeElement.setAttribute('data-tooltip', 'Copied!');
-                        setTimeout(() => {
-                            codeElement.removeAttribute('data-tooltip');
-                        }, 2000);
-                    })
-                    .catch(() => {
-                        alert('Failed to copy code. Please copy manually.');
-                    });
-            });
+    // Disable button during animation
+    generateCodeBtn.disabled = true;
+    generateCodeBtn.textContent = 'Generating...';
 
-            // Disable the generate button after successful code generation
-            generateCodeBtn.disabled = true;
-            
-            // Clear the pair code input since this user is initiating
-            pairCodeInput.value = '';
-            pairCodeInput.disabled = true;
-        } else {
-            throw new Error(result.error || 'Failed to generate code');
-        }
+    try {
+        // Generate code
+        const code = pairingService.generateUniqueCode();
+        
+        // Store user data
+        sessionStorage.setItem('userData', JSON.stringify({
+            username,
+            userCode: code
+        }));
+
+        // Display code with animation
+        displayCode(code);
+
+        // Add copy functionality
+        const codeElement = pairCodeDisplay.querySelector('.code');
+        codeElement.addEventListener('click', () => {
+            navigator.clipboard.writeText(code)
+                .then(() => {
+                    codeElement.setAttribute('data-tooltip', 'Copied!');
+                    // Add success animation
+                    codeElement.classList.add('copied');
+                    setTimeout(() => {
+                        codeElement.removeAttribute('data-tooltip');
+                        codeElement.classList.remove('copied');
+                    }, 2000);
+                });
+        });
+
+        // Disable pair code input
+        pairCodeInput.value = '';
+        pairCodeInput.disabled = true;
+
+        // Update button state
+        generateCodeBtn.textContent = 'Code Generated!';
+        generateCodeBtn.disabled = true;
+
     } catch (error) {
         console.error('Error generating code:', error);
         alert('Failed to generate code. Please try again.');
+        generateCodeBtn.textContent = 'Generate New Pair Code';
+        generateCodeBtn.disabled = false;
+    }
+});
+
+// Handle input changes
+usernameInput.addEventListener('input', () => {
+    const hasUsername = usernameInput.value.trim().length > 0;
+    generateCodeBtn.disabled = !hasUsername;
+    if (hasUsername) {
+        generateCodeBtn.textContent = 'Generate New Pair Code';
+    }
+});
+
+// Format pair code input
+pairCodeInput.addEventListener('input', (e) => {
+    e.target.value = e.target.value.toUpperCase();
+    if (e.target.value.length > 6) {
+        e.target.value = e.target.value.slice(0, 6);
     }
 });
 
@@ -235,18 +276,5 @@ authForm.addEventListener('submit', async (e) => {
         }
     } else {
         alert('Failed to create user. Please try again.');
-    }
-});
-
-// Update the input handler to enable/disable buttons appropriately
-usernameInput.addEventListener('input', () => {
-    const hasUsername = usernameInput.value.trim().length > 0;
-    generateCodeBtn.disabled = !hasUsername;
-});
-
-pairCodeInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.toUpperCase();
-    if (e.target.value.length > 6) {
-        e.target.value = e.target.value.slice(0, 6);
     }
 }); 

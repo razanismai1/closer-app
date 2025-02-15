@@ -12,7 +12,7 @@
     
     <!-- Your JavaScript -->
     <script type="module" src="js/firebase.js"></script>
-    <script type="module" src="js/landing.js" defer></script>
+    <script type="module" src="js/landing.js"></script>
 </head>
 <body>
     <main class="landing-container">
@@ -50,5 +50,22 @@
             </div>
         </div>
     </main>
+
+    <!-- Add this right before the closing </body> tag -->
+    <div id="debug" style="margin-top: 20px; padding: 10px; display: none;">
+        <h3>Debug Info:</h3>
+        <pre id="debugInfo"></pre>
+    </div>
+
+    <script>
+        // Add this to help with debugging
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            const debugInfo = document.getElementById('debugInfo');
+            const debug = document.getElementById('debug');
+            debug.style.display = 'block';
+            debugInfo.textContent += `\nError: ${msg}\nLine: ${lineNo}\n${error?.stack || ''}`;
+            return false;
+        };
+    </script>
 </body>
 </html> 
